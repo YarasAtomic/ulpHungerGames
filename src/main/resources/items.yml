@@ -63,10 +63,6 @@ chest-items:
     amount: 1
     weight: 2
 
-  - type: SHIELD
-    amount: 1
-    weight: 2
-
   - type: BOW
     amount: 1
     weight: 2
@@ -156,30 +152,11 @@ trapped-chest-items:
     weight: 1
     amount: 1
 
-  - type: COMPASS
-    amount: 1
-    weight: 1
-
   - type: POTION
     weight: 2
-    potion-type: SPEED
-    level: 2
-
-  - type: POTION
-    weight: 1
-    potion-type: JUMP
-    level: 2
-
-  - type: SPLASH_POTION
-    weight: 2
-    potion-type: SPEED
-    level: 2
-
-  - type: SPLASH_POTION
-    weight: 1
-    potion-type: JUMP
-    level: 2
-
+    effects:
+      - type: SPEED
+        level: 2
 
 barrel-items:
   - type: IRON_HELMET
@@ -210,19 +187,9 @@ barrel-items:
       - type: PROTECTION
         level: 2
 
-  - type: IRON_SWORD
+  - type: DIAMOND_SWORD
     amount: 1
     weight: 2
-    enchantments:
-      - type: SHARPNESS
-        level: 3
-
-  - type: IRON_AXE
-    amount: 1
-    weight: 2
-    enchantments:
-      - type: SHARPNESS
-        level: 3
 
   - type: BOW
     amount: 1
@@ -248,43 +215,27 @@ barrel-items:
 
   - type: POTION
     weight: 1
-    potion-type: SPEED
-    level: 2
-
-  - type: POTION
-    weight: 1
-    potion-type: JUMP
-    level: 2
-
-  - type: POTION
-    weight: 1
-    potion-type: INSTANT_HEAL
-    level: 2
+    effects:
+      - type: SPEED
+        level: 2
 
   - type: SPLASH_POTION
     weight: 1
-    potion-type: INSTANT_HEAL
-    level: 2
+    effects:
+      - type: INSTANT_HEAL
+        level: 2
 
   - type: SPLASH_POTION
     weight: 1
-    potion-type: SPEED
-    level: 2
+    effects:
+      - type: SLOWNESS
+        level: 2
 
   - type: SPLASH_POTION
     weight: 1
-    potion-type: JUMP
-    level: 2
-
-  - type: SPLASH_POTION
-    weight: 1
-    potion-type: SLOWNESS
-    level: 2
-
-  - type: SPLASH_POTION
-    weight: 1
-    potion-type: WEAKNESS
-    level: 1
+    effects:
+      - type: WEAKNESS
+        level: 1
 
   - type: GOLDEN_CARROT
     amount: 4
@@ -294,81 +245,43 @@ barrel-items:
     amount: 4
     weight: 3
 
-  - type: FIREWORK_ROCKET
-    weight: 3
-    amount: 16
-    power: 1
-    effects:
-      - type: BALL
-        colors:
-          - RED
-          - BLUE
-        fade-colors:
-          - WHITE
-        flicker: true
-        trail: false
-
 supply-drop-items:
-  - type: ELYTRA
-    amount: 1
+  - type: POTION
     weight: 1
-    enchantments:
-      - type: UNBREAKING
-        level: 3
-      - type: BINDING_CURSE
-        level: 1
+    effects:
+      - type: TURTLE_MASTER
+        level: 2
 
   - type: POTION
     weight: 1
-    potion-type: TURTLE_MASTER
-    level: 2
-
-  - type: POTION
-    weight: 1
-    potion-type: STRENGTH
-    level: 2
+    effects:
+      - type: STRENGTH
+        level: 2
 
   - type: POTION
     weight: 2
-    potion-type: REGEN
-    level: 2
-
-  - type: SPLASH_POTION
-    weight: 1
-    potion-type: TURTLE_MASTER
-    level: 2
-
-  - type: SPLASH_POTION
-    weight: 1
-    potion-type: STRENGTH
-    level: 2
+    effects:
+      - type: REGEN
+        level: 2
 
   - type: SPLASH_POTION
     weight: 2
-    potion-type: INSTANT_DAMAGE
-    level: 2
+    effects:
+      - type: INSTANT_DAMAGE
+        level: 2
 
   - type: SPLASH_POTION
     weight: 2
-    potion-type: POISON
-    level: 2
-
-  - type: SPLASH_POTION
-    weight: 2
-    potion-type: REGEN
-    level: 2
+    effects:
+      - type: POISON
+        level: 2
 
   - type: LINGERING_POTION
-    potion-type: INSTANT_HEAL
-    level: 2
-    extended: false
-    weight: 2
-
-  - type: LINGERING_POTION
-    potion-type: INSTANT_DAMAGE
-    level: 2
-    extended: false
-    weight: 2
+    effects:
+      - type: INSTANT_DAMAGE
+        level: 2
+        duration: 0
+        weight: 2
 
   - type: TOTEM_OF_UNDYING
     amount: 1
@@ -388,10 +301,6 @@ supply-drop-items:
   - type: ENCHANTED_GOLDEN_APPLE
     amount: 1
     weight: 1
-
-  - type: DIAMOND_AXE
-    amount: 1
-    weight: 2
 
   - type: DIAMOND_SWORD
     amount: 1
@@ -440,14 +349,14 @@ supply-drop-items:
     weight: 3
     enchantments:
       - type: SHARPNESS
-        level: 5
+        level: 2
 
   - type: ENCHANTED_BOOK
     amount: 1
     weight: 4
     enchantments:
       - type: PROTECTION
-        level: 4
+        level: 2
 
   - type: ENCHANTED_BOOK
     amount: 1
@@ -469,65 +378,3 @@ supply-drop-items:
     enchantments:
       - type: QUICK_CHARGE
         level: 3
-
-  - type: FIREWORK_ROCKET
-    weight: 3
-    amount: 16
-    power: 1
-    effects:
-      - type: BALL
-        colors:
-          - RED
-          - BLUE
-        fade-colors:
-          - WHITE
-        flicker: true
-        trail: false
-      - type: BALL
-        colors:
-          - RED
-          - BLUE
-        fade-colors:
-          - WHITE
-        flicker: true
-        trail: false
-      - type: BALL
-        colors:
-          - RED
-          - BLUE
-        fade-colors:
-          - WHITE
-        flicker: true
-        trail: false
-      - type: BALL
-        colors:
-          - RED
-          - BLUE
-        fade-colors:
-          - WHITE
-        flicker: true
-        trail: false
-      - type: BALL
-        colors:
-          - RED
-          - BLUE
-        fade-colors:
-          - WHITE
-        flicker: true
-        trail: false
-      - type: BALL
-        colors:
-          - RED
-          - BLUE
-        fade-colors:
-          - WHITE
-        flicker: true
-        trail: false
-      - type: BALL
-        colors:
-          - RED
-          - BLUE
-        fade-colors:
-          - WHITE
-        flicker: true
-        trail: false

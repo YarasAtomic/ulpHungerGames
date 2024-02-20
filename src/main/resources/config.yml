@@ -1,3 +1,7 @@
+# Scoring
+min-score: 0
+max-score: 12
+kill-score: 1
 # Minimum and Maximum stacks of different items for regular chests
 min-chest-content: 3
 max-chest-content: 6
@@ -13,19 +17,18 @@ num-supply-drops: 1
 min-supply-drop-content: 2
 max-supply-drop-content: 6
 # Length of the game in seconds (default: 900)
-game-time: 900
+game-time: 60
 # Length of the grace period (time after which PvP is enabled) in seconds, use 0 for no grace period,(default: 30)
-grace-period: 30
+grace-period: 1
+# 30
 # Interval of supplydrops landing inside the map in seconds, use any time higher than game-time for no supplydrops, (default: 30)
 supplydrop:
   interval: 30
+# 900
 # Interval of chests being refilled in seconds, use any time higher than game-time for no chestrefills, (default: 600)
 chestrefill:
-  time: 600
-# Minimum number of players in a game, default is 2
-min-players: 2
-# Maximum number of players in a game, default is 24
-max-players: 24
+  time: 10
+# 600
 # Border settings
 border:
   # Border size in blocks, use size bigger than arena for no border, (default: 100)
@@ -49,12 +52,12 @@ bedrock-buff:
 # Applying temporary buffs for killing players
 killer-effects:
   - effect: DAMAGE_RESISTANCE
-    duration: 300
+    duration: 30
     level: 0
   - effect: INCREASE_DAMAGE
-    duration: 300
+    duration: 30
     level: 0
   - effect: REGENERATION
-    duration: 600
+    duration: 30
     level: 0
 # For more information on changing potion effects, see https://github.com/cantankerous-ally/Hunger-Games/wiki/Cheat-Sheets/
