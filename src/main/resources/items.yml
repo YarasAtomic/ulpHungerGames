@@ -57,11 +57,11 @@ chest-items:
 
   - type: STONE_SWORD
     amount: 1
-    weight: 2
+    weight: 3
 
-  - type: STONE_AXE
+  - type: IRON_SWORD
     amount: 1
-    weight: 2
+    weight: 1
 
   - type: BOW
     amount: 1
@@ -104,7 +104,7 @@ trapped-chest-items:
     amount: 1
     weight: 1
 
-  - type: IRON_AXE
+  - type: STONE_AXE
     amount: 1
     weight: 1
 
@@ -123,10 +123,6 @@ trapped-chest-items:
   - type: IRON_BOOTS
     amount: 1
     weight: 1
-
-  - type: SHIELD
-    amount: 1
-    weight: 2
 
   - type: BOW
     amount: 1
@@ -189,7 +185,7 @@ barrel-items:
 
   - type: DIAMOND_SWORD
     amount: 1
-    weight: 2
+    weight: 1
 
   - type: BOW
     amount: 1
@@ -262,6 +258,15 @@ supply-drop-items:
     weight: 2
     effects:
       - type: REGEN
+        level: 2
+
+  - type: POTION
+    weight: 1
+    name: "Mewing Potion"
+    effects:
+      - type: REGEN
+        level: 2
+      - type: INSTANT_DAMAGE
         level: 2
 
   - type: SPLASH_POTION

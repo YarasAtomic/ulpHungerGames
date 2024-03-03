@@ -91,7 +91,7 @@ public class StartGameCommand implements CommandExecutor {
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                     }
                     gameStarting = false;
-                }, 20L * 1); // ! cambiar el "* 1" por un "* 20"
+                }, 20L * 20); // ! cambiar el "* 1" por un "* 20"
 
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                     plugin.getServer().broadcastMessage(ChatColor.GOLD + "15 seconds left!");
