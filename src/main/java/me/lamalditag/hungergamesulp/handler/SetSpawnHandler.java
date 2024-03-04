@@ -85,6 +85,8 @@ public class SetSpawnHandler implements Listener {
             if (meta.getDisplayName().equals(ChatColor.AQUA + "Spawn Point Selector")) {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
+                    location.setX(location.getX()+0.5);
+                    location.setZ(location.getZ()+0.5);
                     List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
                     String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
                     if (spawnPoints.contains(newSpawnPoint)) {
