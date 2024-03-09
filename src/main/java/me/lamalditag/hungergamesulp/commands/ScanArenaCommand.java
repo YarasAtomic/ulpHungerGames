@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ScanArenaCommand implements CommandExecutor {
@@ -50,21 +49,21 @@ public class ScanArenaCommand implements CommandExecutor {
             plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
                 FileConfiguration config = getArenaConfig();
 
-                if (!config.isSet("region.pos1.x") || !config.isSet("region.pos1.y") || !config.isSet("region.pos1.z")
-                        || !config.isSet("region.pos2.x") || !config.isSet("region.pos2.y") || !config.isSet("region.pos2.z")) {
+                World world = plugin.getServer().getWorlds().get(0);
+                String worldName = world.getName();
+                if (!getArenaConfig().contains("arenas." + worldName + ".region")) {
                     sender.sendMessage(ChatColor.RED + "The arena region is not defined in the config!");
                     return;
                 }
 
                 sender.sendMessage(ChatColor.GREEN + "Scanning arena region... This may take a while.");
 
-                World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
-                double pos1x = config.getDouble("region.pos1.x");
-                double pos1y = config.getDouble("region.pos1.y");
-                double pos1z = config.getDouble("region.pos1.z");
-                double pos2x = config.getDouble("region.pos2.x");
-                double pos2y = config.getDouble("region.pos2.y");
-                double pos2z = config.getDouble("region.pos2.z");
+                double pos1x = config.getDouble("arenas." + worldName + ".region.pos1.x");
+                double pos1y = config.getDouble("arenas." + worldName + ".region.pos1.y");
+                double pos1z = config.getDouble("arenas." + worldName + ".region.pos1.z");
+                double pos2x = config.getDouble("arenas." + worldName + ".region.pos2.x");
+                double pos2y = config.getDouble("arenas." + worldName + ".region.pos2.y");
+                double pos2z = config.getDouble("arenas." + worldName + ".region.pos2.z");
 
                 int minX = (int) Math.min(pos1x, pos2x);
                 int minY = (int) Math.min(pos1y, pos2y);

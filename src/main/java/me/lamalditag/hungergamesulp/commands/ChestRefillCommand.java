@@ -62,19 +62,19 @@ public class ChestRefillCommand implements CommandExecutor {
         if (command.getName().equalsIgnoreCase("chestrefill")) {
             FileConfiguration ArenaConfig = getArenaConfig();
             FileConfiguration config = plugin.getConfig();
-            String worldName = ArenaConfig.getString("region.world");
-            if (worldName == null) {
+            World world = plugin.getServer().getWorlds().get(0);
+            String worldName = world.getName();
+            if (!getArenaConfig().contains("arenas." + worldName)) {
                 sender.sendMessage(ChatColor.RED + "Create an arena first to run this command!");
                 return true;
             }
-            World world = plugin.getServer().getWorld(worldName);
 
-            double pos1x = ArenaConfig.getDouble("region.pos1.x");
-            double pos1y = ArenaConfig.getDouble("region.pos1.y");
-            double pos1z = ArenaConfig.getDouble("region.pos1.z");
-            double pos2x = ArenaConfig.getDouble("region.pos2.x");
-            double pos2y = ArenaConfig.getDouble("region.pos2.y");
-            double pos2z = ArenaConfig.getDouble("region.pos2.z");
+            double pos1x = ArenaConfig.getDouble("arenas." + worldName + ".region.pos1.x");
+            double pos1y = ArenaConfig.getDouble("arenas." + worldName + ".region.pos1.y");
+            double pos1z = ArenaConfig.getDouble("arenas." + worldName + ".region.pos1.z");
+            double pos2x = ArenaConfig.getDouble("arenas." + worldName + ".region.pos2.x");
+            double pos2y = ArenaConfig.getDouble("arenas." + worldName + ".region.pos2.y");
+            double pos2z = ArenaConfig.getDouble("arenas." + worldName + ".region.pos2.z");
 
             int minX = (int) Math.min(pos1x, pos2x);
             int minY = (int) Math.min(pos1y, pos2y);
@@ -201,16 +201,19 @@ public class ChestRefillCommand implements CommandExecutor {
                     .filter(Map.class::isInstance)
                     .map(Map.class::cast)
                     .map(Location::deserialize)
+                    .filter(location -> location.getWorld().equals(world))
                     .toList();
             List<Location> barrelLocations = Objects.requireNonNull(chestLocationsConfig.getList("bonus-locations")).stream()
                     .filter(Map.class::isInstance)
                     .map(Map.class::cast)
                     .map(Location::deserialize)
+                    .filter(location -> location.getWorld().equals(world))
                     .toList();
             List<Location> trappedChestLocations = Objects.requireNonNull(chestLocationsConfig.getList("mid-locations")).stream()
                     .filter(Map.class::isInstance)
                     .map(Map.class::cast)
                     .map(Location::deserialize)
+                    .filter(location -> location.getWorld().equals(world))
                     .toList();
 
             for (Location location : chestLocations) {

@@ -81,19 +81,19 @@ public class ArenaSelectorCommand implements CommandExecutor {
                     Location pos1 = (Location) player.getMetadata("arena_pos1").get(0).value();
                     Location pos2 = (Location) player.getMetadata("arena_pos2").get(0).value();
                     if (pos1 != null && pos2 != null) {
-                        getArenaConfig().set("region.world", Objects.requireNonNull(pos1.getWorld()).getName());
-                        getArenaConfig().set("region.pos1.x", pos1.getX());
-                        getArenaConfig().set("region.pos1.y", pos1.getY());
-                        getArenaConfig().set("region.pos1.z", pos1.getZ());
-                        getArenaConfig().set("region.pos2.x", pos2.getX());
-                        getArenaConfig().set("region.pos2.y", pos2.getY());
-                        getArenaConfig().set("region.pos2.z", pos2.getZ());
-                        File itemsFile = new File (plugin.getDataFolder(), "items.yml");
-                        // if (!itemsFile.exists()) {
-                            saveArenaConfig();
-                            sender.sendMessage(ChatColor.GREEN + "Region created and saved to arena.yml!");
-                        // }
-                        // sender.sendMessage(ChatColor.GREEN + "Region created and saved to arena.yml!");
+                        if(pos1.getWorld() != pos2.getWorld()) {
+                            sender.sendMessage(ChatColor.RED + "The two positions must be in the same world!");
+                            return true;
+                        }
+                        String worldName = Objects.requireNonNull(pos1.getWorld()).getName();
+                        getArenaConfig().set("arenas." + worldName + ".region.pos1.x", pos1.getX());
+                        getArenaConfig().set("arenas." + worldName + ".region.pos1.y", pos1.getY());
+                        getArenaConfig().set("arenas." + worldName + ".region.pos1.z", pos1.getZ());
+                        getArenaConfig().set("arenas." + worldName + ".region.pos2.x", pos2.getX());
+                        getArenaConfig().set("arenas." + worldName + ".region.pos2.y", pos2.getY());
+                        getArenaConfig().set("arenas." + worldName + ".region.pos2.z", pos2.getZ());
+                        saveArenaConfig();
+                        sender.sendMessage(ChatColor.GREEN + "Region created and saved to arena.yml!");
                     } else {
                         sender.sendMessage(ChatColor.RED + "Invalid position values.");
                     }

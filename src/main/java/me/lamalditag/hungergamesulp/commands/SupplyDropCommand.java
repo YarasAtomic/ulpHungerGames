@@ -43,12 +43,12 @@ public class SupplyDropCommand implements CommandExecutor {
         if (command.getName().equalsIgnoreCase("supplydrop")) {
             FileConfiguration config = plugin.getConfig();
             FileConfiguration arenaConfig = getArenaConfig();
-            String worldName = arenaConfig.getString("region.world");
-            if (worldName == null) {
+            World world = plugin.getServer().getWorlds().get(0);
+            String worldName = world.getName();
+            if (!arenaConfig.contains("arenas." + worldName)) {
                 sender.sendMessage(ChatColor.RED + "Create an arena first to run this command!");
                 return true;
             }
-            World world = plugin.getServer().getWorld(worldName);
 
             FileConfiguration itemsConfig;
             File itemsFile = new File(plugin.getDataFolder(), "items.yml");

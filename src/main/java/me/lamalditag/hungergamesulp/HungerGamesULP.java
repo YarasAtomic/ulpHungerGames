@@ -1,7 +1,5 @@
 package me.lamalditag.hungergamesulp;
 
-import org.bukkit.World;
-import org.bukkit.WorldBorder;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -19,6 +17,7 @@ import java.util.Objects;
 public final class HungerGamesULP extends JavaPlugin {
 
     public HungerGamesULP() {
+
     }
 
     public boolean gameStarted = false;
@@ -26,27 +25,20 @@ public final class HungerGamesULP extends JavaPlugin {
     private GameHandler gameHandler;
     public List<Player> playersAlive;
     private SetSpawnHandler setSpawnHandler;
+    private WorldBorderHandler worldBorderHandler;
     private ChestRefillCommand chestRefillCommand;
 
     @Override
     public void onEnable() {
         bossBar = getServer().createBossBar("Time Remaining", BarColor.BLUE, BarStyle.SOLID);
         setSpawnHandler = new SetSpawnHandler(this);
+        worldBorderHandler = new WorldBorderHandler(this);
         gameHandler = new GameHandler(this, setSpawnHandler);
-        getServer().getWorld("world");
         playersAlive = new ArrayList<>();
         new CompassHandler(this);
         chestRefillCommand = new ChestRefillCommand(this);
 
-        World world = getServer().getWorld("world");
-        if (world != null) {
-            double borderSize = getConfig().getDouble("border.size");
-            double centerX = getConfig().getDouble("border.center-x");
-            double centerZ = getConfig().getDouble("border.center-z");
-            WorldBorder border = world.getWorldBorder();
-            border.setSize(borderSize);
-            border.setCenter(centerX, centerZ);
-        }
+        worldBorderHandler.initializeBorder();
 
         saveDefaultConfig();
         saveResource("items.yml", false);
@@ -65,7 +57,7 @@ public final class HungerGamesULP extends JavaPlugin {
         Objects.requireNonNull(getCommand("border")).setTabCompleter(borderSetCommand);
         getServer().getPluginManager().registerEvents(new SetArenaHandler(this), this);
         getServer().getPluginManager().registerEvents(setSpawnHandler, this);
-        getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
+        getServer().getPluginManager().registerEvents(worldBorderHandler, this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
         getServer().getPluginManager().registerEvents(moveToggleCommand, this);
     }

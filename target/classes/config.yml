@@ -29,19 +29,6 @@ supplydrop:
 chestrefill:
   time: 600
 # 600
-# Border settings
-border:
-  # Border size in blocks, use size bigger than arena for no border, (default: 100)
-  size: 100.0
-  # Time in seconds after which border starts shrinking, use any time higher than game-time for no border, (default: 180)
-  start-time: 600
-  # Time in seconds after which border stops shrinking (default: 780)
-  end-time: 900
-  # Final border size in blocks, use size bigger than arena for no border, (default: 40)
-  final-size: 40
-  # X and Z Coordinates of the center of the border, (default: 0, 0)
-  center-x: 0
-  center-z: 0
 # Buffing bedrock players when playing using geyser
 bedrock-buff:
   enabled: false

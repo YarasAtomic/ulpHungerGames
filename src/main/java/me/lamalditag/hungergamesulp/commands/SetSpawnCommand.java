@@ -13,7 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import me.lamalditag.hungergamesulp.HungerGamesULP;
 import me.lamalditag.hungergamesulp.handler.SetSpawnHandler;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SetSpawnCommand implements CommandExecutor {
 
@@ -34,7 +36,11 @@ public class SetSpawnCommand implements CommandExecutor {
             player.getInventory().addItem(stick);
             sender.sendMessage(ChatColor.BLUE + "You have been given a Spawn Point Selector!");
             SetSpawnHandler setSpawnHandler = plugin.getSetSpawnHandler();
-            setSpawnHandler.getSetSpawnConfig().set("spawnpoints", new ArrayList<>());
+            List<String> otherSpawnPoints = setSpawnHandler.getSetSpawnConfig().getStringList("spawnpoints")
+                .stream()
+                .filter(spawnPoint -> !spawnPoint.startsWith(Objects.requireNonNull(player.getWorld()).getName() + ","))
+                .collect(Collectors.toList());
+            setSpawnHandler.getSetSpawnConfig().set("spawnpoints", otherSpawnPoints);
             setSpawnHandler.saveSetSpawnConfig();
             sender.sendMessage(ChatColor.GREEN + "Spawn points have been reset.");
             return true;

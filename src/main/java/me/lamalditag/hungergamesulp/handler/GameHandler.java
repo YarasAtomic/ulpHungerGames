@@ -28,7 +28,6 @@ import me.lamalditag.hungergamesulp.commands.SupplyDropCommand;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -112,26 +111,19 @@ public class GameHandler implements Listener {
 
         // Get the arena region from the config
         FileConfiguration config = getArenaConfig();
-        ConfigurationSection regionSection = config.getConfigurationSection("region");
-        assert regionSection != null;
-        String worldName = regionSection.getString("world");
-        assert worldName != null;
-        World world = plugin.getServer().getWorld(worldName);
-        ConfigurationSection pos1Section = regionSection.getConfigurationSection("pos1");
-        assert pos1Section != null;
-        double x1 = pos1Section.getDouble("x");
-        double y1 = pos1Section.getDouble("y");
-        double z1 = pos1Section.getDouble("z");
-        ConfigurationSection pos2Section = regionSection.getConfigurationSection("pos2");
-        assert pos2Section != null;
-        double x2 = pos2Section.getDouble("x");
-        double y2 = pos2Section.getDouble("y");
-        double z2 = pos2Section.getDouble("z");
+        World world = plugin.getServer().getWorlds().get(0);
+        String worldName = world.getName();
+        
+        double x1 = config.getDouble("arenas." + worldName + ".region.pos1.x");
+        double y1 = config.getDouble("arenas." + worldName + ".region.pos1.y");
+        double z1 = config.getDouble("arenas." + worldName + ".region.pos1.z");
+        double x2 = config.getDouble("arenas." + worldName + ".region.pos2.x");
+        double y2 = config.getDouble("arenas." + worldName + ".region.pos2.y");
+        double z2 = config.getDouble("arenas." + worldName + ".region.pos2.z");
 
         Location minLocation = new Location(world, Math.min(x1, x2), Math.min(y1, y2), Math.min(z1, z2));
         Location maxLocation = new Location(world, Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2));
 
-        assert world != null;
         for (Player player : world.getPlayers()) {
             Location playerLocation = player.getLocation();
             if (playerLocation.getX() >= minLocation.getX() && playerLocation.getX() <= maxLocation.getX()
@@ -254,7 +246,7 @@ public class GameHandler implements Listener {
         if (playersAlive != null) {
             plugin.bossBar.removePlayer(player);
             playersAlive.remove(player);
-            World world = plugin.getServer().getWorld("world");
+            World world = player.getWorld();
             assert world != null;
             Location spawnLocation = world.getSpawnLocation();
             player.teleport(spawnLocation);
@@ -268,6 +260,13 @@ public class GameHandler implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         player.setGameMode(GameMode.ADVENTURE);
+        World world = player.getWorld();
+        if(!world.equals(plugin.getServer().getWorlds().get(0))){
+            return;
+        }
+        Location spawnLocation = world.getSpawnLocation();
+        player.teleport(spawnLocation);
+        player.getInventory().clear();
     }
 
     @EventHandler
@@ -276,7 +275,7 @@ public class GameHandler implements Listener {
         if (playersAlive != null) {
             playersAlive.remove(player);
         }
-        World world = plugin.getServer().getWorld("world");
+        World world = player.getWorld();
         assert world != null;
         Location spawnLocation = world.getSpawnLocation();
         player.teleport(spawnLocation);
@@ -377,11 +376,9 @@ public class GameHandler implements Listener {
             player.setGameMode(GameMode.ADVENTURE);
         }
 
-        World world = plugin.getServer().getWorld("world");
-        assert world != null;
-        WorldBorder border = world.getWorldBorder();
-        double borderSize = plugin.getConfig().getDouble("border.size");
-        border.setSize(borderSize);
+        World world = plugin.getServer().getWorlds().get(0);
+        WorldBorderHandler worldBorderHandler = new WorldBorderHandler(plugin);
+        worldBorderHandler.initializeBorder();
         Server server = plugin.getServer();
 
         if (!world.getEntitiesByClass(Item.class).isEmpty()) {
@@ -446,7 +443,7 @@ public class GameHandler implements Listener {
         }
     }
 
-        @EventHandler
+    @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack item = event.getItem();

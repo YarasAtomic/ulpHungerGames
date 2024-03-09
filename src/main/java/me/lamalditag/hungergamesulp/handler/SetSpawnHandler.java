@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class SetSpawnHandler implements Listener {
 
@@ -88,17 +90,20 @@ public class SetSpawnHandler implements Listener {
                     location.setX(location.getX()+0.5);
                     location.setZ(location.getZ()+0.5);
                     List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
+                    List<String> filteredSpawnPoints = spawnPoints.stream()
+                        .filter(spawnPoint -> spawnPoint.startsWith(Objects.requireNonNull(location.getWorld()).getName() + ","))
+                        .collect(Collectors.toList());
                     String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
                     if (spawnPoints.contains(newSpawnPoint)) {
                         player.sendMessage(ChatColor.RED + "You can't choose the same block for two spawn points!");
                         return;
                     }
-                    if (spawnPoints.size() < 24) {
+                    if (filteredSpawnPoints.size() < 112) {
                         spawnPoints.add(newSpawnPoint);
                         getSetSpawnConfig().set("spawnpoints", spawnPoints);
                         saveSetSpawnConfig();
-                        player.sendMessage(ChatColor.LIGHT_PURPLE + "Spawn point " + ChatColor.GOLD + spawnPoints.size() + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
-                    } else if (spawnPoints.size() ==  24){
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + "Spawn point " + ChatColor.GOLD + (filteredSpawnPoints.size() + 1) + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
+                    } else if (filteredSpawnPoints.size() >=  112){
                         player.sendMessage(ChatColor.RED + "You have reached the maximum number of spawn points!");
                     }
                     event.setCancelled(true);
@@ -114,7 +119,10 @@ public class SetSpawnHandler implements Listener {
                         return;
                     }
                     // Teleport player to an unoccupied spawn point
-                    List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
+                    List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints")
+                        .stream()
+                        .filter(spawnPoint -> spawnPoint.startsWith(Objects.requireNonNull(player.getWorld()).getName() + ","))
+                        .collect(Collectors.toList());
                     List<String> availableSpawnPoints = new ArrayList<>(spawnPoints);
                     availableSpawnPoints.removeAll(occupiedSpawnPoints);
                     if (!availableSpawnPoints.isEmpty()) {
@@ -143,6 +151,56 @@ public class SetSpawnHandler implements Listener {
                         player.sendMessage(ChatColor.RED + "All spawn points are currently occupied!");
                     }
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
+        if (event.getMessage().equalsIgnoreCase("[Join]")) {
+            Player player = event.getPlayer();
+            // If player is already in the game, do nothing
+            if (playerSpawnPoints.containsKey(player)) {
+                return;
+            }
+            // If game has already started, do nothing
+            if (plugin.gameStarted) {
+                player.sendMessage(ChatColor.RED + "The game has already started!");
+                return;
+            }
+            // Teleport player to an unoccupied spawn point
+            List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints")
+                .stream()
+                .filter(spawnPoint -> spawnPoint.startsWith(Objects.requireNonNull(player.getWorld()).getName() + ","))
+                .collect(Collectors.toList());
+            List<String> availableSpawnPoints = new ArrayList<>(spawnPoints);
+            availableSpawnPoints.removeAll(occupiedSpawnPoints);
+            if (!availableSpawnPoints.isEmpty()) {
+                String spawnPoint = availableSpawnPoints.get(new Random().nextInt(availableSpawnPoints.size()));
+                String[] coords = spawnPoint.split(",");
+                World world = plugin.getServer().getWorld(coords[0]);
+                double x = Double.parseDouble(coords[1]);
+                double y = Double.parseDouble(coords[2]) + 1;
+                double z = Double.parseDouble(coords[3]);
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    player.teleport(new Location(world, x, y, z));
+                });
+                occupiedSpawnPoints.add(spawnPoint);
+                player.setGameMode(GameMode.ADVENTURE);
+                player.getInventory().clear();
+                player.setExp(0);
+                player.setLevel(30);
+                player.setHealth(20);
+                player.setFoodLevel(20);
+                for (PotionEffect effect : player.getActivePotionEffects()) {
+                    player.removePotionEffect(effect.getType());
+                }
+                // Broadcast a message to all players
+                plugin.getServer().broadcastMessage(ChatColor.AQUA + player.getName() + " has joined [" + occupiedSpawnPoints.size() + "/" + spawnPoints.size() + "]");
+                // Add player to the map of players and their spawn points
+                playerSpawnPoints.put(player, spawnPoint);
+            } else {
+                player.sendMessage(ChatColor.RED + "All spawn points are currently occupied!");
             }
         }
     }

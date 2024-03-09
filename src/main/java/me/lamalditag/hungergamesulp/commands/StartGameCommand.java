@@ -15,6 +15,8 @@ import me.lamalditag.hungergamesulp.HungerGamesULP;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class StartGameCommand implements CommandExecutor {
     private final HungerGamesULP plugin;
@@ -60,15 +62,18 @@ public class StartGameCommand implements CommandExecutor {
                     p.sendMessage(ChatColor.RED + "There must be at least 2 players to start the game!");
                     return true;
                 }
-                List<String> spawnpoints = setspawnConfig.getStringList("spawnpoints");
-                String world = arenaConfig.getString("region.world");
-                if (spawnpoints.isEmpty() && world == null) {
+                List<String> spawnPoints = setspawnConfig.getStringList("spawnpoints")
+                        .stream()
+                        .filter(spawnPoint -> spawnPoint.startsWith(Objects.requireNonNull(p.getWorld()).getName() + ","))
+                        .collect(Collectors.toList());
+                String worldName = plugin.getServer().getWorlds().get(0).getName();
+                if (spawnPoints.isEmpty() && !arenaConfig.contains("arenas." + worldName)) {
                     p.sendMessage(ChatColor.RED + "Set up arena and spawnpoints first!");
                     return true;
-                } else if (spawnpoints.isEmpty()) {
+                } else if (spawnPoints.isEmpty()) {
                     p.sendMessage(ChatColor.RED + "Set up spawnpoints first!");
                     return true;
-                } else if (world == null) {
+                } else if (spawnPoints.isEmpty() && !arenaConfig.contains("arenas." + worldName)) {
                     p.sendMessage(ChatColor.RED + "Set up arena first!");
                     return true;
                 }
@@ -91,7 +96,7 @@ public class StartGameCommand implements CommandExecutor {
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                     }
                     gameStarting = false;
-                }, 20L * 20); // ! cambiar el "* 1" por un "* 20"
+                }, 20L * 20);
 
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                     plugin.getServer().broadcastMessage(ChatColor.GOLD + "15 seconds left!");

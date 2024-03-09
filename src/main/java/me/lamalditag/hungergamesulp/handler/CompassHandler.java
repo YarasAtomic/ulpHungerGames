@@ -1,17 +1,20 @@
 package me.lamalditag.hungergamesulp.handler;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
+
+import me.lamalditag.hungergamesulp.HungerGamesULP;
 
 public class CompassHandler {
 
-    public CompassHandler(JavaPlugin plugin) {
+    private final HungerGamesULP plugin;
+
+    public CompassHandler(HungerGamesULP plugin) {
+        this.plugin = plugin;
 
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
+            for (Player player : plugin.playersAlive) {
                 ItemStack itemInHand = player.getInventory().getItemInMainHand();
                 if (itemInHand.getType() == Material.COMPASS) {
                     Player nearestPlayer = findNearestPlayer(player);
@@ -26,7 +29,7 @@ public class CompassHandler {
     private Player findNearestPlayer(Player player) {
         double closestDistance = Double.MAX_VALUE;
         Player closestPlayer = null;
-        for (Player otherPlayer : Bukkit.getServer().getOnlinePlayers()) {
+        for (Player otherPlayer : plugin.playersAlive) {
             if (otherPlayer != player && otherPlayer.getWorld() == player.getWorld()) {
                 double distance = player.getLocation().distance(otherPlayer.getLocation());
                 if (distance < closestDistance) {
