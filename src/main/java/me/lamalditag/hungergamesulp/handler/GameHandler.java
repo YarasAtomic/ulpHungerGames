@@ -124,6 +124,8 @@ public class GameHandler implements Listener {
         Location minLocation = new Location(world, Math.min(x1, x2), Math.min(y1, y2), Math.min(z1, z2));
         Location maxLocation = new Location(world, Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2));
 
+        List<Player> notPlayingPlayers = new ArrayList<>();
+
         for (Player player : world.getPlayers()) {
             Location playerLocation = player.getLocation();
             if (playerLocation.getX() >= minLocation.getX() && playerLocation.getX() <= maxLocation.getX()
@@ -132,7 +134,13 @@ public class GameHandler implements Listener {
                     && player.getGameMode() == GameMode.ADVENTURE) {
                 plugin.bossBar.addPlayer(player);
                 playersAlive.add(player);
+            } else {
+                notPlayingPlayers.add(player);
             }
+        }
+
+        for (Player player : notPlayingPlayers) {
+            player.setGameMode(GameMode.SPECTATOR);;
         }
 
         for (Player player : playersAlive) {
@@ -267,6 +275,9 @@ public class GameHandler implements Listener {
         Location spawnLocation = world.getSpawnLocation();
         player.teleport(spawnLocation);
         player.getInventory().clear();
+        if(plugin.gameStarted){
+            player.setGameMode(GameMode.SPECTATOR);
+        }
     }
 
     @EventHandler
@@ -278,7 +289,11 @@ public class GameHandler implements Listener {
         World world = player.getWorld();
         assert world != null;
         Location spawnLocation = world.getSpawnLocation();
-        player.teleport(spawnLocation);
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            player.spigot().respawn();
+            player.teleport(spawnLocation);
+            player.setGameMode(GameMode.SPECTATOR);
+        });
         Map<Player, String> playerSpawnPoints = setSpawnHandler.getPlayerSpawnPoints();
         String spawnPoint = playerSpawnPoints.get(player);
         setSpawnHandler.removeOccupiedSpawnPoint(spawnPoint);
@@ -298,7 +313,6 @@ public class GameHandler implements Listener {
         updatePlayerCalificationScore(player);
         updateKillerScore(killer);
         updatePlayersAliveScore();
-        player.setGameMode(GameMode.SPECTATOR);
     }
 
     public void updatePlayerCalificationScore(Player player){

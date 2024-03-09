@@ -24,8 +24,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ChestRefillCommand implements CommandExecutor {
+
     private final JavaPlugin plugin;
     Map<String, Color> colorMap = new HashMap<>();
+    private FileConfiguration chestLocations = null;
+    private File chestFile = null;
 
     public ChestRefillCommand(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -46,6 +49,24 @@ public class ChestRefillCommand implements CommandExecutor {
         colorMap.put("TEAL", Color.TEAL);
         colorMap.put("WHITE", Color.WHITE);
         colorMap.put("YELLOW", Color.YELLOW);
+        createChestLocations();
+    }
+
+    public void createChestLocations() {
+        chestFile = new File(plugin.getDataFolder(), "chest-locations.yml");
+        if (!chestFile.exists()) {
+            chestFile.getParentFile().mkdirs();
+            plugin.saveResource("chest-locations.yml", false);
+        }
+
+        chestLocations = YamlConfiguration.loadConfiguration(chestFile);
+    }
+
+    public FileConfiguration getChestLocations() {
+        if (chestLocations == null) {
+            createChestLocations();
+        }
+        return chestLocations;
     }
 
     public FileConfiguration getArenaConfig() {
@@ -157,63 +178,25 @@ public class ChestRefillCommand implements CommandExecutor {
                 trappedChestItemWeights.add(weight);
             }
 
-            File chestLocationsFile = new File(plugin.getDataFolder(), "chest-locations.yml");
-            if (!chestLocationsFile.exists()) {
-                List<Location> chestLocations = new ArrayList<>();
-                List<Location> barrelLocations = new ArrayList<>();
-                List<Location> trappedChestLocations = new ArrayList<>();
-                for (int x = minX; x <= maxX; x++) {
-                    for (int y = minY; y <= maxY; y++) {
-                        for (int z = minZ; z <= maxZ; z++) {
-                            assert world != null;
-                            Block block = world.getBlockAt(x, y, z);
-                            if (block.getType() == Material.CHEST) {
-                                chestLocations.add(block.getLocation());
-                            } else if (block.getType() == Material.BARREL) {
-                                barrelLocations.add(block.getLocation());
-                            } else if (block.getType() == Material.TRAPPED_CHEST) {
-                                trappedChestLocations.add(block.getLocation());
-                            }
-                        }
-                    }
-                }
-
-                FileConfiguration chestLocationsConfig = new YamlConfiguration();
-                chestLocationsConfig.set("locations", chestLocations.stream()
-                        .map(Location::serialize)
-                        .collect(Collectors.toList()));
-                chestLocationsConfig.set("bonus-locations", barrelLocations.stream()
-                        .map(Location::serialize)
-                        .collect(Collectors.toList()));
-                chestLocationsConfig.set("mid-locations", trappedChestLocations.stream()
-                        .map(Location::serialize)
-                        .collect(Collectors.toList()));
-                try {
-                    chestLocationsConfig.save(chestLocationsFile);
-                } catch (IOException e) {
-                    sender.sendMessage(ChatColor.RED + "Could not save chest locations to file!");
-                    return true;
-                }
+            if (!getChestLocations().contains("locations." + worldName) || !getChestLocations().contains("bonus-locations." + worldName) || !getChestLocations().contains("mid-locations." + worldName)) {
+                sender.sendMessage(ChatColor.RED + "Scan this arena first!");
+                return true;
             }
 
-            FileConfiguration chestLocationsConfig = YamlConfiguration.loadConfiguration(chestLocationsFile);
-            List<Location> chestLocations = Objects.requireNonNull(chestLocationsConfig.getList("locations")).stream()
+            List<Location> chestLocations = getChestLocations().getList("locations." + worldName).stream()
                     .filter(Map.class::isInstance)
                     .map(Map.class::cast)
                     .map(Location::deserialize)
-                    .filter(location -> location.getWorld().equals(world))
                     .toList();
-            List<Location> barrelLocations = Objects.requireNonNull(chestLocationsConfig.getList("bonus-locations")).stream()
+            List<Location> barrelLocations = getChestLocations().getList("bonus-locations." + worldName).stream()
                     .filter(Map.class::isInstance)
                     .map(Map.class::cast)
                     .map(Location::deserialize)
-                    .filter(location -> location.getWorld().equals(world))
                     .toList();
-            List<Location> trappedChestLocations = Objects.requireNonNull(chestLocationsConfig.getList("mid-locations")).stream()
+            List<Location> trappedChestLocations = getChestLocations().getList("mid-locations." + worldName).stream()
                     .filter(Map.class::isInstance)
                     .map(Map.class::cast)
                     .map(Location::deserialize)
-                    .filter(location -> location.getWorld().equals(world))
                     .toList();
 
             for (Location location : chestLocations) {
@@ -308,7 +291,7 @@ public class ChestRefillCommand implements CommandExecutor {
             }
             plugin.getServer().broadcastMessage(ChatColor.GREEN + "Chests have been refilled!");
         }
-        return false;
+        return true;
     }
 
     @NotNull

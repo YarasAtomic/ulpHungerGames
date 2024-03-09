@@ -14,16 +14,45 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ScanArenaCommand implements CommandExecutor {
     private final JavaPlugin plugin;
     private FileConfiguration arenaConfig = null;
     private File arenaFile = null;
+    private FileConfiguration chestLocations = null;
+    private File chestFile = null;
 
     public ScanArenaCommand(JavaPlugin plugin) {
         this.plugin = plugin;
         createArenaConfig();
+        createChestLocations();
+    }
+
+    public void createChestLocations() {
+        chestFile = new File(plugin.getDataFolder(), "chest-locations.yml");
+        if (!chestFile.exists()) {
+            chestFile.getParentFile().mkdirs();
+            plugin.saveResource("chest-locations.yml", false);
+        }
+
+        chestLocations = YamlConfiguration.loadConfiguration(chestFile);
+    }
+
+    public FileConfiguration getChestLocations() {
+        if (chestLocations == null) {
+            createChestLocations();
+        }
+        return chestLocations;
+    }
+
+    public void saveChestLocations() {
+        try {
+            getChestLocations().save(chestFile);
+        } catch (IOException e) {
+            plugin.getLogger().log(java.util.logging.Level.SEVERE, "Could not save chest-locations.yml to " + chestFile, e);
+        }
     }
 
     public void createArenaConfig() {
@@ -72,8 +101,6 @@ public class ScanArenaCommand implements CommandExecutor {
                 int maxY = (int) Math.max(pos1y, pos2y);
                 int maxZ = (int) Math.max(pos1z, pos2z);
 
-                File chestLocationsFile = new File(plugin.getDataFolder(), "chest-locations.yml");
-
                 List<Location> chestLocations = new ArrayList<>();
                 List<Location> barrelLocations = new ArrayList<>();
                 List<Location> trappedChestLocations = new ArrayList<>();
@@ -83,6 +110,7 @@ public class ScanArenaCommand implements CommandExecutor {
                 int maxChunkZ = maxZ >> 4;
 
                 for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+                    
                     for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
                         assert world != null;
                         Chunk chunk = world.getChunkAt(chunkX, chunkZ);
@@ -103,22 +131,20 @@ public class ScanArenaCommand implements CommandExecutor {
                     }
                 }
 
-                FileConfiguration chestLocationsConfig = new YamlConfiguration();
-                chestLocationsConfig.set("locations", chestLocations.stream()
+                getChestLocations().set("locations." + worldName, chestLocations.stream()
                         .map(Location::serialize)
                         .collect(Collectors.toList()));
-                chestLocationsConfig.set("bonus-locations", barrelLocations.stream()
+
+                getChestLocations().set("bonus-locations." + worldName, barrelLocations.stream()
                         .map(Location::serialize)
                         .collect(Collectors.toList()));
-                chestLocationsConfig.set("mid-locations", trappedChestLocations.stream()
+
+                getChestLocations().set("mid-locations." + worldName, trappedChestLocations.stream()
                         .map(Location::serialize)
                         .collect(Collectors.toList()));
-                try {
-                    chestLocationsConfig.save(chestLocationsFile);
-                    sender.sendMessage(ChatColor.GREEN + "Chest locations have been saved!");
-                } catch (IOException e) {
-                    sender.sendMessage(ChatColor.RED + "Could not save chest locations to file!");
-                }
+
+                saveChestLocations();
+                sender.sendMessage(ChatColor.GREEN + "Chest locations have been saved!");
             });
             return true;
         }
